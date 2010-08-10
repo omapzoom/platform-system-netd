@@ -10,6 +10,7 @@ LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
 ifdef OMAP_ENHANCEMENT
+ifeq ($(TARGET_PRODUCT),zoom2)
 DK_ROOT = hardware/ti/wlan/wl1271_softAP
 OS_ROOT = $(DK_ROOT)/platforms
 STAD    = $(DK_ROOT)/stad
@@ -32,6 +33,7 @@ WILINK_INCLUDES = $(STAD)/Export_Inc               \
                   $(CUDK)/configurationutility/inc \
                   $(CUDK)/hostapd                  \
                   $(CUDK)/os/common/inc
+endif
 endif
 
 LOCAL_SRC_FILES:=                                      \
@@ -64,12 +66,14 @@ LOCAL_CFLAGS += -DWIFI_DRIVER_FW_AP_PATH=\"$(WIFI_DRIVER_FW_AP_PATH)\"
 endif
 
 ifdef OMAP_ENHANCEMENT
+ifeq ($(TARGET_PRODUCT),zoom2)
 LOCAL_CFLAGS += -D__BYTE_ORDER_LITTLE_ENDIAN
 LOCAL_STATIC_LIBRARIES := libhostapdcli
 LOCAL_C_INCLUDES += $(WILINK_INCLUDES)
 LOCAL_SRC_FILES += SoftapControllerTI.cpp
 else
 LOCAL_SRC_FILES += SoftapController.cpp
+endif
 endif
 
 LOCAL_SHARED_LIBRARIES := libsysutils libcutils libnetutils libcrypto
