@@ -21,6 +21,7 @@
 #include <net/if.h>
 #include <utils/List.h>
 
+#define HOSTAPD_MAX_RETRIES     4
 #define SOFTAP_MAX_BUFFER_SIZE	4096
 #define AP_BSS_START_DELAY	1000000
 #define AP_BSS_STOP_DELAY	 500000

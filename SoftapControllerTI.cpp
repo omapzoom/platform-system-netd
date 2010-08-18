@@ -43,7 +43,7 @@ extern "C" {
 #include <cutils/properties.h>
 #include "cu_hostapd.h"
 
-#include "SoftapController.h"
+#include "SoftapControllerTI.h"
 
 SoftapController::SoftapController() {
     mPid = 0;
@@ -121,7 +121,8 @@ int SoftapController::stopDriver(char *iface) {
 }
 
 int SoftapController::startSoftap() {
-    int ret = 0;
+    int i, ret = 0;
+    THostapdCLICmd cmd;
 
     if(mPid == 1) {
         LOGE("Softap already started");
@@ -133,9 +134,19 @@ int SoftapController::startSoftap() {
         return -1; 
     }
 
-    mPid = 1;
-    LOGD("Softap startap - Ok");
-    usleep(AP_BSS_START_DELAY);
+    cmd.eCmdType = HOSTAPD_CLI_CMD_PING;
+
+    for(i=0; i < HOSTAPD_MAX_RETRIES; i++) {
+        usleep(AP_BSS_START_DELAY);
+        ret = HostapdCLI_RunCommand("tiap0", &cmd);
+        if(ret == -1) {
+            continue;
+        } else {
+            LOGD("Softap startap - Ok");
+            mPid = 1;
+            return 0;
+        }
+    }
 
     return ret;
 }
