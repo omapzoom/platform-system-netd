@@ -31,7 +31,7 @@ WILINK_INCLUDES = $(STAD)/Export_Inc               \
                   $(TWD)/FW_Transfer/Export_Inc    \
                   $(TXN)                           \
                   $(CUDK)/configurationutility/inc \
-                  $(CUDK)/hostapd                  \
+                  external/hostapd                 \
                   $(CUDK)/os/common/inc
 endif
 endif
