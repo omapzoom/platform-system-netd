@@ -44,6 +44,7 @@ extern "C" {
 #include "cu_hostapd.h"
 
 #include "SoftapControllerTI.h"
+#include <hardware_legacy/power.h>
 
 SoftapController::SoftapController() {
     mPid = 0;
@@ -148,6 +149,8 @@ int SoftapController::startSoftap() {
         }
     }
 
+    acquire_wake_lock(PARTIAL_WAKE_LOCK,"hotspot_wake_lock");
+
     return ret;
 }
 
@@ -166,6 +169,9 @@ int SoftapController::stopSoftap() {
 
     mPid = 0;
     usleep(AP_BSS_STOP_DELAY);
+
+    release_wake_lock("hotspot_wake_lock");
+
     return ret;
 }
 

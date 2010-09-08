@@ -76,7 +76,7 @@ LOCAL_SRC_FILES += SoftapController.cpp
 endif
 endif
 
-LOCAL_SHARED_LIBRARIES := libsysutils libcutils libnetutils libcrypto
+LOCAL_SHARED_LIBRARIES := libsysutils libcutils libnetutils libcrypto libhardware_legacy
 
 ifeq ($(BOARD_HAVE_BLUETOOTH),true)
   LOCAL_SHARED_LIBRARIES := $(LOCAL_SHARED_LIBRARIES) libbluedroid
