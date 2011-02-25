@@ -30,7 +30,6 @@
 
 class SoftapController {
     pid_t mPid;
-    int mSock;
 
 public:
     SoftapController();

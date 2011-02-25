@@ -48,77 +48,37 @@ extern "C" {
 
 SoftapController::SoftapController() {
     mPid = 0;
-    mSock = socket(AF_INET, SOCK_DGRAM, 0);
-    if (mSock < 0)
-        LOGE("Failed to open socket");
 }
 
 SoftapController::~SoftapController() {
-    if (mSock >= 0)
-        close(mSock);
 }
 
 int SoftapController::startDriver(char *iface) {
-    struct iwreq wrq;
-    ti_private_cmd_t private_cmd;
 
-    int ret, dummyBuf;
-
-    if (mSock < 0) {
-        LOGE("Softap driver start - failed to open socket");
-        return -1;
-    }
     if (!iface || (iface[0] == '\0')) {
         LOGD("Softap driver start - wrong interface");
         return -1;
     }
 
-    private_cmd.cmd = DRIVER_START_PARAM;
-    private_cmd.flags = PRIVATE_CMD_SET_FLAG;
-    private_cmd.in_buffer = &dummyBuf;
-    private_cmd.in_buffer_len = sizeof(dummyBuf);
-    private_cmd.out_buffer = NULL;
-    private_cmd.out_buffer_len = 0;
+    if (property_set("ctl.start", "ifcfg_softap") < 0) {
+        LOGE("Failed to start Driver");
+        return -1;
+    }
 
-    strncpy(wrq.ifr_name, iface, sizeof(wrq.ifr_name));
-    wrq.u.data.length = sizeof(ti_private_cmd_t);
-    wrq.u.data.pointer = &private_cmd;
-    wrq.u.data.flags = 0;
-    ret = ioctl(mSock, SIOCIWFIRSTPRIV, &wrq);
     usleep(AP_DRIVER_START_DELAY);
-    LOGD("Softap driver start: %d", ret);
-    return ret;
+    LOGD("Softap driver start: OK");
+    return 0;
 }
 
 int SoftapController::stopDriver(char *iface) {
-    struct iwreq wrq;
-    ti_private_cmd_t private_cmd;
 
-    int ret, dummyBuf;
-
-    if (mSock < 0) {
-        LOGE("Softap driver stop - failed to open socket");
-        return -1;
-    }
     if (!iface || (iface[0] == '\0')) {
         LOGD("Softap driver stop - wrong interface");
         return -1;
     }
 
-    private_cmd.cmd = DRIVER_STOP_PARAM;
-    private_cmd.flags = PRIVATE_CMD_SET_FLAG;
-    private_cmd.in_buffer = &dummyBuf;
-    private_cmd.in_buffer_len = sizeof(dummyBuf);
-    private_cmd.out_buffer = NULL;
-    private_cmd.out_buffer_len = 0;
-
-    strncpy(wrq.ifr_name, iface, sizeof(wrq.ifr_name));
-    wrq.u.data.length = sizeof(ti_private_cmd_t);
-    wrq.u.data.pointer = &private_cmd;
-    wrq.u.data.flags = 0;
-    ret = ioctl(mSock, SIOCIWFIRSTPRIV, &wrq);
-    LOGD("Softap driver stop: %d", ret);
-    return ret;
+    LOGD("Softap driver stop: OK");
+    return 0;
 }
 
 int SoftapController::startSoftap() {
