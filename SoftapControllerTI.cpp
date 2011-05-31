@@ -32,6 +32,7 @@
 #include <openssl/sha.h>
 
 #define LOG_TAG "SoftapController"
+#define HOTSPOT_PGM_NAME LOG_TAG
 #include <cutils/log.h>
 
 extern "C" {
@@ -85,6 +86,8 @@ int SoftapController::startSoftap() {
     int i, ret = 0;
     THostapdCLICmd cmd;
 
+    acquire_wake_lock(PARTIAL_WAKE_LOCK, HOTSPOT_PGM_NAME);
+
     if(mPid == 1) {
         LOGE("Softap already started");
         return 0;
@@ -92,6 +95,7 @@ int SoftapController::startSoftap() {
 
     if (property_set("ctl.start", "hostapd") < 0) {
         LOGE("Failed to start hostapd");
+        release_wake_lock(HOTSPOT_PGM_NAME);
         return -1; 
     }
 
@@ -109,13 +113,16 @@ int SoftapController::startSoftap() {
         }
     }
 
-    acquire_wake_lock(PARTIAL_WAKE_LOCK,"hotspot_wake_lock");
+    if((ret == -1) && (i == HOSTAPD_MAX_RETRIES))
+        release_wake_lock(HOTSPOT_PGM_NAME);
 
     return ret;
 }
 
 int SoftapController::stopSoftap() {
     int ret = 0;
+
+    release_wake_lock(HOTSPOT_PGM_NAME);
 
     if (mPid == 0) {
         LOGE("Softap already stopped");
@@ -129,8 +136,6 @@ int SoftapController::stopSoftap() {
 
     mPid = 0;
     usleep(AP_BSS_STOP_DELAY);
-
-    release_wake_lock("hotspot_wake_lock");
 
     return ret;
 }
