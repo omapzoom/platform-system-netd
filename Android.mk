@@ -14,7 +14,6 @@ LOCAL_SRC_FILES:=                                      \
                   PppController.cpp                    \
                   ResolverController.cpp               \
                   SecondaryTableController.cpp         \
-                  SoftapController.cpp                 \
                   TetherController.cpp                 \
                   ThrottleController.cpp               \
                   logwrapper.c                         \
@@ -35,6 +34,18 @@ LOCAL_CFLAGS :=
 
 LOCAL_SHARED_LIBRARIES := libstlport libsysutils libcutils libnetutils \
                           libcrypto libhardware_legacy
+
+ifdef OMAP_ENHANCEMENT
+  ifdef BOARD_SOFTAP_DEVICE
+    LOCAL_SRC_FILES += SoftapControllerTI.cpp
+    LOCAL_C_INCLUDES += external/libnl-headers
+    LOCAL_STATIC_LIBRARIES += libnl_2
+  else
+    LOCAL_SRC_FILES += SoftapController.cpp
+  endif
+else
+  LOCAL_SRC_FILES += SoftapController.cpp
+endif
 
 ifneq ($(BOARD_HOSTAPD_DRIVER),)
   LOCAL_CFLAGS += -DHAVE_HOSTAPD
