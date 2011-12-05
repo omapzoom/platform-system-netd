@@ -291,8 +291,32 @@ cleanup:
     return ret;
 }
 
+int SoftapController::isIfUp(const char *ifname) {
+    int sock, ret;
+    struct ifreq ifr;
+
+    sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if(sock < 0) {
+        return -1;
+    }
+
+    memset(&ifr, 0, sizeof(struct ifreq));
+    strncpy(ifr.ifr_name, ifname, IFNAMSIZ-1);
+    ret = ioctl(sock, SIOCGIFFLAGS, &ifr);
+    close(sock);
+
+    if(ret == 0) {
+       return ifr.ifr_flags & IFF_UP ? 1 : 0;
+    }
+
+    LOGE("Failed to get interface flags for %s\n", ifname);
+    return -1;
+}
+
+
 int SoftapController::startHostapd() {
     int i;
+    int ifup;
     char svc_property[100];
 
     if(mHostapdStarted) {
@@ -320,8 +344,20 @@ int SoftapController::startHostapd() {
         return -1;
     }
 
-    // give hostapd some more time to actuallly start (connect to driver)
-    sleep(2);
+    // give hostapd some more time to start and bring interface up
+    for(i=0; i < HOSTAPD_IFUP_WAIT_RETRIES; i++) {
+        ifup = isIfUp(AP_INTERFACE);
+        if(ifup == 1) {
+            break;
+        }
+        usleep(HOSTAPD_START_DELAY_US);
+    }
+
+    if(ifup != 1) {
+        LOGE("Interface wasn't brought up by hostapd");
+        return -1;
+    }
+
     LOGD("hostapd started OK");
     mHostapdStarted = true;
 

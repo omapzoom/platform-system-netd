@@ -39,9 +39,10 @@
 #define HOSTAPD_CONF_TEMPLATE_FILE "/system/etc/wifi/hostapd.conf"
 #define HOSTAPD_CONF_FILE "/data/misc/wifi/hostapd.conf"
 
-#define HOSTAPD_START_MAX_RETRIES 20
-#define HOSTAPD_START_DELAY_US  500000
-#define HOSTAPD_STOP_DELAY_US 500000
+#define HOSTAPD_IFUP_WAIT_RETRIES 20
+#define HOSTAPD_START_MAX_RETRIES 100
+#define HOSTAPD_START_DELAY_US  100000
+#define HOSTAPD_STOP_DELAY_US 100000
 
 #define STA_INTERFACE  "wlan0"
 #define AP_INTERFACE   "wlan1"
@@ -67,6 +68,7 @@ private:
     static int NlErrorHandler(struct sockaddr_nl *nla, struct nlmsgerr *err, void *arg);
     int executeNlCmd(const char *iface, enum nl80211_iftype type, uint8_t cmd);
     int switchInterface(bool apMode);
+    int isIfUp(const char *ifname);
 
 public:
     SoftapController();
