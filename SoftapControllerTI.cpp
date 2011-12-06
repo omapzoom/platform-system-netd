@@ -317,7 +317,7 @@ int SoftapController::isIfUp(const char *ifname) {
 int SoftapController::startHostapd() {
     int i;
     int ifup;
-    char svc_property[100];
+    char svc_property[PROPERTY_VALUE_MAX] = {'\0'};
 
     if(mHostapdStarted) {
         LOGE("hostapd is started");
@@ -331,7 +331,7 @@ int SoftapController::startHostapd() {
 
     for(i=0; i < HOSTAPD_START_MAX_RETRIES; i++) {
         usleep(HOSTAPD_START_DELAY_US);
-        if (property_get(HOSTAPD_STATE_PROP, svc_property, "no_such_prop") <= 0)
+        if (property_get(HOSTAPD_STATE_PROP, svc_property, NULL) <= 0)
             continue;
         else if (strcmp(svc_property,"running") != 0)
             continue;
@@ -365,6 +365,14 @@ int SoftapController::startHostapd() {
 }
 
 int SoftapController::stopHostapd() {
+    char svc_property[PROPERTY_VALUE_MAX] = {'\0'};
+
+    if (property_get(HOSTAPD_STATE_PROP, svc_property, NULL) > 0) {
+        if (strcmp(svc_property, "running") != 0) {
+            LOGD("hostapd not running!");
+            return 0;
+        }
+    }
 
     if (property_set("ctl.stop", HOSTAPD_SERVICE_NAME) < 0) {
         LOGE("Failed to stop hostapd service");
