@@ -16,6 +16,7 @@ LOCAL_SRC_FILES:=                                      \
                   SecondaryTableController.cpp         \
                   TetherController.cpp                 \
                   ThrottleController.cpp               \
+                  oem_iptables_hook.cpp                \
                   logwrapper.c                         \
                   main.cpp                             \
 
