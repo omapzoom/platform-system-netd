@@ -19,7 +19,6 @@ LOCAL_SRC_FILES:=                                      \
                   PppController.cpp                    \
                   ResolverController.cpp               \
                   SecondaryTableController.cpp         \
-                  SoftapController.cpp                 \
                   TetherController.cpp                 \
                   oem_iptables_hook.cpp                \
                   main.cpp                             \
@@ -40,6 +39,11 @@ LOCAL_CFLAGS := -Werror=format
 LOCAL_SHARED_LIBRARIES := libstlport libsysutils liblog libcutils libnetutils \
                           libcrypto libhardware_legacy libmdnssd libdl \
                           liblogwrap
+ifdef USES_TI_MAC80211
+  LOCAL_SRC_FILES += SoftapControllerTI.cpp
+else
+  LOCAL_SRC_FILES += SoftapController.cpp
+endif
 
 include $(BUILD_EXECUTABLE)
 
