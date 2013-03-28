@@ -37,8 +37,11 @@ public:
 
     int setIpFwdEnabled(bool enable);
     bool getIpFwdEnabled();
-
+#ifdef OMAP_ENHANCEMENT
+    int startTethering(int num_addrs, struct in_addr* addrs, const char *script_path = NULL);
+#else
     int startTethering(int num_addrs, struct in_addr* addrs);
+#endif
 
     int stopTethering();
     bool isTetheringStarted();

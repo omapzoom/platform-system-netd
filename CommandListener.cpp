@@ -663,12 +663,27 @@ int CommandListener::TetherCmd::runCommand(SocketClient *cli,
         }
 
         if (!strcmp(argv[1], "start")) {
+#ifdef OMAP_ENHANCEMENT
+            /*Added for DHCP leases hack to send to
+              dnsmasq path to DHCP leases script location*/
+            int num_addrs;
+            const char *script_path = NULL;
+
+            if (argc % 2 == 1) {
+                //path to script added to DHCP range
+                num_addrs = argc - 3;
+                script_path = argv[argc - 1];
+            } else {
+                num_addrs = argc - 2;
+            }
+#else
             if (argc % 2 == 1) {
                 cli->sendMsg(ResponseCode::CommandSyntaxError, "Bad number of arguments", false);
                 return 0;
             }
 
             int num_addrs = argc - 2;
+#endif
             int arg_index = 2;
             int array_index = 0;
             in_addr *addrs = (in_addr *)malloc(sizeof(in_addr) * num_addrs);
@@ -679,7 +694,11 @@ int CommandListener::TetherCmd::runCommand(SocketClient *cli,
                     return 0;
                 }
             }
+#ifdef OMAP_ENHANCEMENT
+            rc = sTetherCtrl->startTethering(num_addrs, addrs, script_path);
+#else
             rc = sTetherCtrl->startTethering(num_addrs, addrs);
+#endif
             free(addrs);
         } else if (!strcmp(argv[1], "interface")) {
             if (!strcmp(argv[2], "add")) {

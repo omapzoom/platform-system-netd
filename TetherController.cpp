@@ -97,7 +97,11 @@ bool TetherController::getIpFwdEnabled() {
     return (enabled  == '1' ? true : false);
 }
 
+#ifdef OMAP_ENHANCEMENT
+int TetherController::startTethering(int num_addrs, struct in_addr* addrs, const char *script_path) {
+#else
 int TetherController::startTethering(int num_addrs, struct in_addr* addrs) {
+#endif
     if (mDaemonPid != 0) {
         ALOGE("Tethering already started");
         errno = EBUSY;
@@ -135,7 +139,16 @@ int TetherController::startTethering(int num_addrs, struct in_addr* addrs) {
             close(pipefd[0]);
         }
 
+#ifdef OMAP_ENHANCEMENT
+        int num_processed_args;
+        if (script_path != NULL) {
+            num_processed_args = 7 + (num_addrs/2) + 2; // 1 null for termination and 1 for script path
+        } else {
+            num_processed_args = 7 + (num_addrs/2) + 1; // 1 null for termination
+        }
+#else
         int num_processed_args = 7 + (num_addrs/2) + 1; // 1 null for termination
+#endif
         char **args = (char **)malloc(sizeof(char *) * num_processed_args);
         args[num_processed_args - 1] = NULL;
         args[0] = (char *)"/system/bin/dnsmasq";
@@ -153,6 +166,12 @@ int TetherController::startTethering(int num_addrs, struct in_addr* addrs) {
             char *end = strdup(inet_ntoa(addrs[addrIndex++]));
             asprintf(&(args[nextArg++]),"--dhcp-range=%s,%s,1h", start, end);
         }
+
+#ifdef OMAP_ENHANCEMENT
+        if (script_path != NULL) {
+            args[num_processed_args - 2] = const_cast<char *>(script_path);
+        }
+#endif
 
         if (execv(args[0], args)) {
             ALOGE("execl failed (%s)", strerror(errno));
